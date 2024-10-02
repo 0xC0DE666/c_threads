@@ -36,6 +36,7 @@ void* print_self(void* arg) {
   int  r = random_int(1, 10);
   printf("Thread %lu running %d\n", self, r);
   sleep(r);
+  printf("Thread %lu done\n", self);
   pthread_exit(NULL);
 }
 
@@ -65,7 +66,6 @@ int main() {
   for (int i = 0; i < 10; ++i) {
     pthread_t* t = (pthread_t*) array_get(threads, i);
     pthread_join(*t, NULL);
-    printf("Thread %lu done\n", *t);
   }
   printf("All threads done.\n");
 

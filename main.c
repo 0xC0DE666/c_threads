@@ -5,6 +5,11 @@
 
 #include "./c_structs.h"
 
+void ptr_free(void** p) {
+  free(*p);
+  *p = NULL;
+}
+
 int x = 0;
 int nums[] = {0};
 void* add(void* arg) {
@@ -28,9 +33,9 @@ int random_int(int min, int max) {
 
 void* print_self(void* arg) {
   pthread_t self = pthread_self();
-  int* i = (int*) arg;
-  printf("Thread %d id = %lu running\n", *i, self);
-  sleep(random_int(1, 3));
+  int  r = random_int(1, 10);
+  printf("Thread %lu running %d\n", self, r);
+  sleep(r);
   pthread_exit(NULL);
 }
 
@@ -54,31 +59,18 @@ int main() {
   
   for (int i = 0; i < 10; ++i) {
     pthread_t* t = (pthread_t*) array_get(threads, i);
-    int res_a = pthread_create(t, NULL, print_self, (void*)&i);
+    int res_a = pthread_create(t, NULL, print_self, NULL);
   }
   
   for (int i = 0; i < 10; ++i) {
     pthread_t* t = (pthread_t*) array_get(threads, i);
     pthread_join(*t, NULL);
-    printf("Thread %d id = %lu done\n", i, *t);
+    printf("Thread %lu done\n", *t);
   }
   printf("All threads done.\n");
+
+  array_free(&numbers, NULL);
+  array_free(&threads, (FreeFn) ptr_free);
   
-  // for (int i = 0; i < threads->capacity; ++i) {
-  //   pthread_t* t = (pthread_t*) array_get(threads, i);
-  //   pthread_t x;
-  //   printf("YEAH %lu %lu\n", sizeof(*t), sizeof(x));
-  //   int res_a = pthread_create(&x, NULL, add, (void*)numbers);
-  //   if (res_a) {
-  //     printf("Failed to create thread %d.\n", i);
-  //   }
-  // }
-  // 
-  // for (int i = 0; i < threads->capacity; ++i) {
-  //   // Wait for all threads to finish
-  //   pthread_t* t = (pthread_t*) array_get(threads, i);
-  //   pthread_join(*t, NULL);
-  // }
-  // printf("All threads completed.\n");
   return 0;
 }
